@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Class Students</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Segoe UI',sans-serif;
+        }
+
+        body{
+            background: linear-gradient(135deg,#000000,#434343);
+            min-height:100vh;
+            padding:40px;
+            color:white;
+        }
+
+        .container{
+            background: rgba(255,215,0,0.05);
+            backdrop-filter: blur(12px);
+            padding:30px;
+            border-radius:15px;
+            box-shadow:0 15px 40px rgba(0,0,0,0.6);
+        }
+
+        h2{
+            text-align:center;
+            margin-bottom:30px;
+            font-size:28px;
+            color:gold;
+            text-shadow:0 0 15px gold;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            background:white;
+            color:black;
+            border-radius:12px;
+            overflow:hidden;
+        }
+
+        th{
+            background:gold;
+            color:black;
+            padding:12px;
+            font-weight:bold;
+        }
+
+        td{
+            padding:12px;
+            text-align:center;
+        }
+
+        tr:nth-child(even){
+            background:#f9f9f9;
+        }
+
+        tr:hover{
+            background:#ffeaa7;
+            transition:0.3s;
+        }
+
+        .delete-btn{
+            padding:7px 15px;
+            border:none;
+            border-radius:20px;
+            background:#e74c3c;
+            color:white;
+            font-weight:bold;
+            cursor:pointer;
+            transition:0.3s;
+        }
+
+        .delete-btn:hover{
+            background:#c0392b;
+            transform:scale(1.1);
+        }
+
+        .back-btn{
+            margin-top:25px;
+            display:inline-block;
+            padding:10px 20px;
+            background:gold;
+            color:black;
+            text-decoration:none;
+            border-radius:25px;
+            font-weight:bold;
+            transition:0.3s;
+        }
+
+        .back-btn:hover{
+            background:#ffd700;
+            transform:scale(1.05);
+        }
+
+        @media(max-width:768px){
+            table{
+                font-size:14px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+<h2>👑 Class: {{class_name}}</h2>
+
+<table>
+<tr>
+<th>S.No</th>
+<th>Username</th>
+<th>Password</th>
+<th>Delete</th>
+</tr>
+
+{% for s in students %}
+<tr>
+<td>{{loop.index}}</td>
+<td>{{s[1]}}</td>
+<td>{{s[2]}}</td>
+<td>
+<a href="/delete_student/{{s[0]}}/{{class_id}}">
+<button class="delete-btn">Delete</button>
+</a>
+</td>
+</tr>
+{% endfor %}
+</table>
+
+<br>
+<a href="/view_classes" class="back-btn">⬅ Back</a>
+
+</div>
+
+</body>
+</html>

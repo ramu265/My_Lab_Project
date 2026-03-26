@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login - Attendance System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+    position:relative;
+    overflow:hidden;
+}
+
+/* ===== BACKGROUND LETTER ANIMATION ===== */
+
+.bg-letters{
+    position:absolute;
+    width:100%;
+    height:100%;
+    top:0;
+    left:0;
+    overflow:hidden;
+    z-index:0;
+}
+
+.bg-letters span{
+    position:absolute;
+    font-size:70px;
+    font-weight:bold;
+    color:rgb(0, 0, 0);
+    animation:fall linear infinite;
+    user-select:none;
+}
+
+@keyframes fall{
+    0%{ transform:translateY(-100px) rotate(0deg); opacity:0; }
+    10%{ opacity:1; }
+    100%{ transform:translateY(110vh) rotate(360deg); opacity:0; }
+}
+
+/* About Button */
+.info-btn{
+    position:absolute;
+    top:30px;
+    right:40px;
+    padding:18px 25px;
+    background:#ff9800;
+    border:none;
+    border-radius:10px;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+    z-index:2;
+}
+
+.info-btn:hover{
+    background:#22ff43;
+    transform:scale(1.05);
+}
+
+/* Login Box */
+.login-container{
+    background:rgba(255,255,255,0.1);
+    padding:40px;
+    width:350px;
+    border-radius:15px;
+    backdrop-filter:blur(10px);
+    box-shadow:0 8px 32px rgba(0,0,0,0.3);
+    color:white;
+    z-index:2;
+}
+
+.login-container h2{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.radio-group{
+    display:flex;
+    justify-content:space-around;
+    margin-bottom:20px;
+}
+
+input[type="text"],
+input[type="password"]{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    margin-bottom:15px;
+    border:none;
+    border-radius:8px;
+    outline:none;
+}
+
+input[type="submit"]{
+    width:100%;
+    padding:12px;
+    background:#00c6ff;
+    border:none;
+    border-radius:8px;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+input[type="submit"]:hover{
+    background:#0072ff;
+    transform:scale(1.05);
+}
+
+.footer{
+    text-align:center;
+    margin-top:15px;
+    font-size:13px;
+    opacity:0.8;
+}
+
+/* ===== MODAL FIX ===== */
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.7);
+    backdrop-filter:blur(5px);
+    z-index:999;
+    justify-content:center;
+    align-items:center;
+}
+
+.modal.active{
+    display:flex;
+}
+
+.modal-content{
+    background:white;
+    padding:40px;
+    border-radius:15px;
+    width:90%;
+    max-width:550px;
+    max-height:80vh;
+    overflow-y:auto;
+    text-align:left;
+    box-shadow:0 20px 50px rgba(0,0,0,0.5);
+}
+
+.modal-content h3{
+    text-align:center;
+    margin-bottom:25px;
+    font-size:22px;
+}
+
+.info-row{
+    margin-bottom:12px;
+    font-size:16px;
+}
+
+.info-row span{
+    font-weight:bold;
+    display:inline-block;
+    width:100px;
+}
+
+.close-btn{
+    margin-top:20px;
+    width:100%;
+    padding:10px;
+    background:red;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+/* Lock Modal */
+.lock-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    width:300px;
+}
+
+.lock-box input{
+    width:100%;
+    padding:10px;
+    margin-top:15px;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+.lock-box button{
+    margin-top:15px;
+    padding:10px;
+    width:100%;
+    border:none;
+    border-radius:8px;
+    background:#00c6ff;
+    color:white;
+    cursor:pointer;
+}
+
+.error-msg{
+    color:red;
+    font-size:14px;
+    margin-top:10px;
+    display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg-letters" id="bgLetters"></div>
+
+<button class="info-btn" onclick="openLock()">About Developers</button>
+
+<div class="login-container">
+<h2>Attendance System Login</h2>
+
+<form method="post">
+<div class="radio-group">
+<label><input type="radio" name="type" value="admin" required> Admin</label>
+<label><input type="radio" name="type" value="student"> Student</label>
+</div>
+
+<label>Username</label>
+<input type="text" name="username" required>
+
+<label>Password</label>
+<input type="password" name="password" required>
+
+<input type="submit" value="Login">
+</form>
+
+<div class="footer">
+ 2026 Attendance Management System
+</div>
+</div>
+
+<!-- Lock Modal -->
+<div class="modal" id="lockModal">
+<div class="lock-box">
+<h3>Enter Your Lock</h3>
+<input type="password" id="lockInput" placeholder="Enter Lock Code">
+<button onclick="checkLock()">Unlock</button>
+<div class="error-msg" id="lockError">Wrong Lock Code</div>
+</div>
+</div>
+
+<!-- Developers Modal -->
+<div class="modal" id="infoModal">
+<div class="modal-content">
+<h3>About Developers</h3>
+
+<div class="info-row"><span>Name :</span> 👨‍💻 Ramu</div>
+<div class="info-row"><span>Phone :</span> 📞 7337438345</div>
+<div class="info-row"><span>Email :</span> 📧 venkytirumareddy28@gmail.com</div>
+
+<hr style="margin:20px 0;">
+
+<div class="info-row"><span>Name :</span> 👨‍💻 Vishwa</div>
+<div class="info-row"><span>Phone :</span> 📞  97074 04702</div>
+<div class="info-row"><span>Email :</span> 📧 vishwa28@gmail.com</div>
+<hr style="margin:20px 0;">
+
+    <div class="info-row"><span>Name :</span> 👨‍💻 Lavanya</div>
+<div class="info-row"><span>Phone :</span> 📞  9030228260</div>
+<div class="info-row"><span>Email :</span> 📧 ksri0788@gmail.com</div>
+<hr style="margin:20px 0;">
+
+    <div class="info-row"><span>Name :</span> 👨‍💻 Kavya</div>
+<div class="info-row"><span>Phone :</span> 📞  9030228260</div>
+<div class="info-row"><span>Email :</span> 📧 ksri0788@gmail.com</div>
+<hr style="margin:20px 0;">
+    
+    <div class="info-row"><span>Name :</span> 👨‍💻 Aravind</div>
+<div class="info-row"><span>Phone :</span> 📞  7673936217</div>
+<div class="info-row"><span>Email :</span> 📧 aravindneelamsetti3@gmail.com</div>
+<hr style="margin:20px 0;">
+    
+    <div class="info-row"><span>Name :</span> 👨‍💻 Avinash</div>
+<div class="info-row"><span>Phone :</span> 📞  8688024706</div>
+<div class="info-row"><span>Email :</span> 📧 avinashkota5555@gmail.com</div>
+<hr style="margin:20px 0;">
+    
+<div class="info-row"><span>Name :</span> 👨‍💻 Tarun</div>
+<div class="info-row"><span>Phone :</span> 📞  9014770424</div>
+<div class="info-row"><span>Email :</span> 📧 sunkaratarun46@gmail.com</div>
+<hr style="margin:20px 0;">
+
+    <div class="info-row"><span>Name :</span> 👨‍💻 Manikanta(+)</div>
+<div class="info-row"><span>Phone :</span> 📞  93927 04863</div>
+<div class="info-row"><span>Email :</span> 📧 pillamanikanta@gmail.com</div>
+<hr style="margin:20px 0;">
+
+    <div class="info-row"><span>Name :</span> 👨‍💻 Chandu(+)</div>
+<div class="info-row"><span>Phone :</span> 📞  73861 24509</div>
+<div class="info-row"><span>Email :</span> 📧 Chandu@gmail.com</div>
+<hr style="margin:20px 0;">
+    
+<div class="info-row"><span>Name :</span> 👨‍💻 Kumar</div>
+<div class="info-row"><span>Phone :</span> 📞 6301070945</div>
+<div class="info-row"><span>Email :</span> 📧 kbandaru978@gmail.com</div>
+
+<button class="close-btn" onclick="closeModal()">Close</button>
+
+</div>
+</div>
+
+<script>
+
+/* Background Letters */
+function createLetters(){
+    const container = document.getElementById("bgLetters");
+    const letters = ["ADC","VZM"];
+    for(let i=0;i<37;i++){
+        let span=document.createElement("span");
+        span.innerText=letters[Math.floor(Math.random()*2)];
+        span.style.left=Math.random()*100+"vw";
+        span.style.fontSize=(50+Math.random()*50)+"px";
+        span.style.animationDuration=(6+Math.random()*6)+"s";
+        span.style.animationDelay=Math.random()*5+"s";
+        container.appendChild(span);
+    }
+}
+createLetters();
+
+/* FIXED FUNCTIONS */
+
+function openLock(){
+document.getElementById("lockModal").classList.add("active");
+document.getElementById("lockInput").value="";
+document.getElementById("lockError").style.display="none";
+}
+
+function checkLock(){
+let code=document.getElementById("lockInput").value;
+
+if(code==="2341"){
+document.getElementById("lockModal").classList.remove("active");
+document.getElementById("infoModal").classList.add("active");
+}else{
+document.getElementById("lockError").style.display="block";
+}
+}
+
+function closeModal(){
+document.getElementById("infoModal").classList.remove("active");
+}
+
+</script>
+
+</body>
+
+</html>

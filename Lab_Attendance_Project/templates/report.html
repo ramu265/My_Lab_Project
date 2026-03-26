@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Class Report</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body{
+            background: linear-gradient(135deg,#1e3c72,#2a5298);
+            min-height:100vh;
+            padding:20px;
+            color:#fff;
+        }
+
+        .container{
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(15px);
+            padding:30px;
+            border-radius:15px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.3);
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h2{
+            text-align:center;
+            margin-bottom:20px;
+            font-size:28px;
+        }
+
+        /* PDF lo matrame kanipinche Header Section */
+        #pdfHeader {
+            display: none; 
+            text-align: center;
+            color: black;
+            margin-bottom: 20px;
+        }
+
+        label { display: block; margin-top: 10px; font-weight: bold; }
+
+        select, input[type="date"]{
+            width:100%;
+            padding:10px;
+            margin-top:5px;
+            margin-bottom:10px;
+            border:none;
+            border-radius:8px;
+            outline: none;
+        }
+
+        .btn{
+            width:100%;
+            padding:12px;
+            border:none;
+            border-radius:25px;
+            font-weight:bold;
+            cursor:pointer;
+            margin-top:10px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .generate{ background:#00c6ff; color:#000; }
+        .back{ background:#f44336; color:white; margin-bottom: 20px; }
+
+        .btn-view {
+            background: #ff9800;
+            color: white;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 11px;
+        }
+
+        .download-btn {
+            background: #4CAF50;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .table-container { width: 100%; overflow-x: auto; margin-top: 30px; }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            background:white;
+            color:black;
+            border-radius: 8px;
+        }
+
+        th{ background:#2a5298; color:white; padding:12px; text-align: center; }
+        td{ padding:10px; text-align:center; border-bottom: 1px solid #ddd; }
+        tr:nth-child(even){ background:#f9f9f9; }
+
+        /* PDF Download Appudu Unwanted elements hide cheyadaniki class */
+        .no-pdf { display: none !important; }
+
+    </style>
+</head>
+<body>
+
+<div class="container" id="reportArea">
+
+    <h2 id="mainTitle">📊 Class Attendance Report</h2>
+
+    <div id="pdfHeader">
+        <h1 style="color: #1e3c72;">Attendance Report</h1>
+        <p><strong>Period:</strong> {{ start }} to {{ end }}</p>
+        <p style="font-size: 12px;">Generated on: <span id="genDate"></span></p>
+        <hr style="margin: 15px 0;">
+    </div>
+
+    <a href="/admin" class="btn back">⬅ Back to Admin</a>
+
+    <form method="POST" action="/report" class="form-element">
+        <label>Select Class</label>
+        <select name="class_id" required>
+            <option value="" disabled selected>-- Choose Class --</option>
+            {% for c in classes %}
+            <option value="{{c[0]}}" {% if class_id == c[0]|string %}selected{% endif %}>{{c[1]}}</option>
+            {% endfor %}
+        </select>
+
+        <label>Start Date</label>
+        <input type="date" name="start" value="{{start}}" required>
+
+        <label>End Date</label>
+        <input type="date" name="end" value="{{end}}" required>
+
+        <button type="submit" class="btn generate">Generate Report</button>
+    </form>
+
+    {% if data %}
+    <div class="table-container">
+        <table id="reportTable">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Presents</th>
+                    <th>Absents</th>
+                    <th>Percentage</th>
+                    <th>Amount (Fine)</th>
+                    <th class="action-col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    <td>{{row[0]}}</td>
+                    <td>{{row[1]}}</td>
+                    <td>{{row[2]}}</td>
+                    <td>{{row[3]}}</td>
+                    <td>{{row[4]}}%</td>
+                    <td>₹{{row[5]}}</td>
+                    <td class="action-col">
+                        <a href="/view_results/{{row[6]}}" class="btn-view">👁 VIEW_RESULTS</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <button type="button" onclick="downloadPDF()" class="btn download-btn">📥 Direct Download PDF</button>
+
+    {% elif request.method == 'POST' %}
+        <p style="text-align: center; margin-top: 20px;">No data found for the selected range.</p>
+    {% endif %}
+
+</div>
+
+<script>
+    function downloadPDF() {
+        const element = document.getElementById('reportArea');
+        const header = document.getElementById('pdfHeader');
+        const mainTitle = document.getElementById('mainTitle');
+        const form = document.querySelector('.form-element');
+        const backBtn = document.querySelector('.back');
+        const downloadBtn = document.querySelector('.download-btn');
+        const actions = document.querySelectorAll('.action-col');
+
+        // Today's date
+        document.getElementById('genDate').innerText = new Date().toLocaleDateString();
+
+        // PDF kosam display settings marchali
+        header.style.display = 'block';
+        mainTitle.style.display = 'none';
+        form.style.display = 'none';
+        backBtn.style.display = 'none';
+        downloadBtn.style.display = 'none';
+        actions.forEach(col => col.style.display = 'none');
+
+        // Table style for PDF
+        const table = document.getElementById('reportTable');
+        table.style.color = 'black';
+
+        const opt = {
+            margin:       10,
+            filename:     'Attendance_Report_{{ start }}_to_{{ end }}.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // Download process
+        html2pdf().set(opt).from(element).save().then(() => {
+            // Download ayipoyaka malli normal screen chupinchali
+            header.style.display = 'none';
+            mainTitle.style.display = 'block';
+            form.style.display = 'block';
+            backBtn.style.display = 'block';
+            downloadBtn.style.display = 'block';
+            actions.forEach(col => col.style.display = 'table-cell');
+        });
+    }
+</script>
+
+</body>
+</html>

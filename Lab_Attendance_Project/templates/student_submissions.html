@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Submissions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f0f2f5; padding: 20px; }
+        .container { max-width: 950px; margin: auto; }
+        .header { background: #1e3c72; color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 6px solid #ccc; position: relative; }
+        .program-header { font-weight: bold; font-size: 19px; color: #1e3c72; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .meta { color: #555; font-size: 14px; margin-bottom: 15px; background: #f9f9f9; padding: 8px; border-radius: 5px; }
+        .time-badge { background: #e3f2fd; color: #1976d2; padding: 3px 8px; border-radius: 5px; font-weight: bold; }
+        
+        /* Status Styles */
+        .status-badge { font-size: 14px; padding: 5px 12px; border-radius: 20px; font-weight: bold; transition: 0.3s; }
+        .correct { background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; }
+        
+        .code-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        pre { background: #272822; color: #f8f8f2; padding: 12px; border-radius: 5px; overflow-x: auto; font-family: 'Consolas', monospace; font-size: 13px; max-height: 250px; }
+        .label { font-size: 11px; font-weight: bold; text-transform: uppercase; color: #777; margin-bottom: 5px; display: block; }
+        
+        .back-btn { background: #f44336; color: white; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-size: 14px; transition: 0.3s; }
+        .back-btn:hover { background: #d32f2f; }
+
+        .output-box { padding: 10px; background: #f1f8e9; border: 1px dashed #2e7d32; border-radius: 5px; font-size: 13px; color: #1b5e20; }
+
+        @media (max-width: 768px) { .code-container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div>
+            <h2 style="margin:0;">Results for: {{ student_name }}</h2>
+            <p style="font-size: 13px; opacity: 0.8;">Total Successful Tasks: {{ submissions|length }}</p>
+        </div>
+        <a href="/admin" class="back-btn">⬅ Back to Dashboard</a>
+    </div>
+
+    {% if submissions %}
+        {% for sub in submissions %}
+        <div class="card" id="card-{{ loop.index }}">
+            <div class="program-header">
+                <span>#{{ loop.index }} - {{ sub[0] }}</span>
+                <span id="status-{{ loop.index }}" class="status-badge correct">✅ Correct / Verified</span>
+            </div>
+            
+            <div class="meta">
+                Submitted on: <b>{{ sub[3] }}</b> | 
+                Processing Time: <span class="time-badge">{{ sub[2] }} Seconds</span>
+            </div>
+
+            <div class="code-container">
+                <div>
+                    <span class="label">Student's Source Code:</span>
+                    <pre><code>{{ sub[1] }}</code></pre>
+                </div>
+                <div>
+                    <span class="label">System Verification:</span>
+                    <div class="output-box">
+                        <strong>Expected Output:</strong><br>
+                        <code style="word-break: break-all;">{{ sub[4] }}</code>
+                        <hr style="margin: 10px 0; border: 0; border-top: 1px solid #c8e6c9;">
+                        <p>Status: Output Matched Perfectly. Attendance has been logged for this date.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card" style="text-align: center; padding: 60px;">
+            <p style="font-size: 18px; color: #666;">No program submissions found for this student yet.</p>
+            <br>
+            <a href="/admin" style="color: #1e3c72;">Return to Dashboard</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Since submissions table only stores successful runs (from your app.py logic),
+        // we visually enforce the green theme for all loaded cards.
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.style.borderLeftColor = "#2e7d32";
+        });
+    });
+</script>
+
+</body>
+</html>

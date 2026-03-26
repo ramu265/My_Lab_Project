@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Task</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body{
+            height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:linear-gradient(135deg,#4e54c8,#8f94fb);
+        }
+
+        .container{
+            width:500px;
+            padding:40px;
+            background:rgba(255,255,255,0.15);
+            backdrop-filter:blur(15px);
+            border-radius:20px;
+            box-shadow:0 8px 32px rgba(0,0,0,0.3);
+            color:white;
+        }
+
+        h2{
+            text-align:center;
+            margin-bottom:30px;
+            font-weight:600;
+            letter-spacing:1px;
+        }
+
+        .form-group{
+            margin-bottom:20px;
+        }
+
+        select, textarea{
+            width:100%;
+            padding:12px;
+            border:none;
+            border-radius:10px;
+            font-size:14px;
+            outline:none;
+            resize:none;
+            transition:0.3s;
+        }
+
+        select:focus, textarea:focus{
+            box-shadow:0 0 10px rgba(255,255,255,0.7);
+        }
+
+        textarea{
+            min-height:80px;
+        }
+
+        button{
+            width:100%;
+            padding:12px;
+            border:none;
+            border-radius:30px;
+            background:linear-gradient(45deg,#ff6a00,#ee0979);
+            color:white;
+            font-weight:bold;
+            cursor:pointer;
+            transition:0.4s;
+        }
+
+        button:hover{
+            transform:scale(1.05);
+            box-shadow:0 0 20px rgba(255,255,255,0.6);
+        }
+
+        .back{
+            display:block;
+            text-align:center;
+            margin-top:20px;
+            color:white;
+            text-decoration:none;
+            font-size:14px;
+            transition:0.3s;
+        }
+
+        .back:hover{
+            color:#ffe600;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Add Task</h2>
+
+    <form method="post">
+
+        <div class="form-group">
+            <select name="class_id" required>
+                <option value="">Select Class</option>
+                {% for c in classes %}
+                <option value="{{c[0]}}">{{c[1]}}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <textarea name="question" placeholder="Enter Question" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <textarea name="sample_input" placeholder="Enter Sample Input"></textarea>
+        </div>
+
+        <div class="form-group">
+            <textarea name="sample_output" placeholder="Enter Sample Output"></textarea>
+        </div>
+
+        <button type="submit">Add Task</button>
+
+    </form>
+
+    <a href="/admin" class="back">← Back to Dashboard</a>
+</div>
+
+</body>
+</html>
