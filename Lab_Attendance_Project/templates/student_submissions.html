@@ -1,30 +1,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Student Submissions</title>
+    <title>Student Submissions - {{ student_name }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #f0f2f5; padding: 20px; }
         .container { max-width: 950px; margin: auto; }
-        .header { background: #1e3c72; color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 6px solid #ccc; position: relative; }
-        .program-header { font-weight: bold; font-size: 19px; color: #1e3c72; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-        .meta { color: #555; font-size: 14px; margin-bottom: 15px; background: #f9f9f9; padding: 8px; border-radius: 5px; }
+        
+        /* Header Section */
+        .header { 
+            background: #1e3c72; color: white; padding: 20px; border-radius: 10px; 
+            margin-bottom: 20px; display: flex; justify-content: space-between; 
+            align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+        }
+
+        /* Card Section */
+        .card { 
+            background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 6px solid #ccc; position: relative; 
+        }
+        
+        .program-header { 
+            font-weight: bold; font-size: 19px; color: #1e3c72; margin-bottom: 10px; 
+            display: flex; align-items: center; justify-content: space-between; 
+        }
+        
+        .meta { 
+            color: #555; font-size: 14px; margin-bottom: 15px; background: #f9f9f9; 
+            padding: 8px; border-radius: 5px; 
+        }
+        
         .time-badge { background: #e3f2fd; color: #1976d2; padding: 3px 8px; border-radius: 5px; font-weight: bold; }
         
-        /* Status Styles */
-        .status-badge { font-size: 14px; padding: 5px 12px; border-radius: 20px; font-weight: bold; transition: 0.3s; }
+        /* Status Badges */
+        .status-badge { font-size: 14px; padding: 5px 12px; border-radius: 20px; font-weight: bold; }
         .correct { background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; }
-        
+        .error-status { background: #ffebee; color: #c62828; border: 1px solid #c62828; }
+
+        /* Status Colors for History */
+        .text-Success { color: #2e7d32 !important; font-weight: bold; }
+        .text-Error { color: #c62828 !important; font-weight: bold; }
+
+        /* Code & Output Grid */
         .code-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        pre { background: #272822; color: #f8f8f2; padding: 12px; border-radius: 5px; overflow-x: auto; font-family: 'Consolas', monospace; font-size: 13px; max-height: 250px; }
+        pre { 
+            background: #272822; color: #f8f8f2; padding: 12px; border-radius: 5px; 
+            overflow-x: auto; font-family: 'Consolas', monospace; font-size: 13px; max-height: 250px; 
+        }
         .label { font-size: 11px; font-weight: bold; text-transform: uppercase; color: #777; margin-bottom: 5px; display: block; }
         
         .back-btn { background: #f44336; color: white; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-size: 14px; transition: 0.3s; }
         .back-btn:hover { background: #d32f2f; }
 
-        .output-box { padding: 10px; background: #f1f8e9; border: 1px dashed #2e7d32; border-radius: 5px; font-size: 13px; color: #1b5e20; }
+        /* Output Box */
+        .output-box { padding: 10px; border-radius: 5px; font-size: 13px; }
+        .output-success { background: #f1f8e9; border: 1px dashed #2e7d32; color: #1b5e20; }
+        .output-error { background: #fff5f5; border: 1px dashed #f44336; color: #b71c1c; }
+
+        .btn-more { 
+            background: #00c6ff; color: #fff; border: none; padding: 10px 15px; 
+            border-radius: 5px; cursor: pointer; margin-top: 15px; font-weight: bold; 
+            width: 100%; transition: 0.3s; 
+        }
+        .btn-more:hover { background: #0072ff; }
+        
+        .attempts-container { display: none; margin-top: 15px; border-top: 2px dashed #ddd; padding-top: 15px; }
+        .attempt-box { border-left: 4px solid #ccc; padding: 15px; margin-bottom: 15px; background: #fdfdfd; border-radius: 0 5px 5px 0; }
+        
+        /* Fixed Dynamic Border Classes */
+        .status-Success-box { border-left-color: #2e7d32 !important; }
+        .status-Error-box { border-left-color: #c62828 !important; }
+        
+        .error-detail { color: #d32f2f; background: #fff1f1; padding: 8px; border-radius: 4px; margin-top: 5px; font-size: 12px; border: 1px solid #ffcdd2; }
 
         @media (max-width: 768px) { .code-container { grid-template-columns: 1fr; } }
     </style>
@@ -35,59 +83,82 @@
     <div class="header">
         <div>
             <h2 style="margin:0;">Results for: {{ student_name }}</h2>
-            <p style="font-size: 13px; opacity: 0.8;">Total Successful Tasks: {{ submissions|length }}</p>
+            <p style="font-size: 13px; opacity: 0.8;">Tasks Attempted: {{ data|length }}</p>
         </div>
-        <a href="/admin" class="back-btn">⬅ Back to Dashboard</a>
+        <a href="/report" class="back-btn">⬅ Back to Report</a>
     </div>
 
-    {% if submissions %}
-        {% for sub in submissions %}
-        <div class="card" id="card-{{ loop.index }}">
+    {% if data %}
+        {% for item in data %}
+        <div class="card {% if item.attempts[0][3] == 'Success' %}status-Success-box{% else %}status-Error-box{% endif %}">
+            
             <div class="program-header">
-                <span>#{{ loop.index }} - {{ sub[0] }}</span>
-                <span id="status-{{ loop.index }}" class="status-badge correct">✅ Correct / Verified</span>
+                <span>Q: {{ item.question }}</span>
+                <span class="status-badge {{ 'correct' if item.attempts[0][3] == 'Success' else 'error-status' }}">
+                    {{ item.attempts[0][3] }}
+                </span>
             </div>
             
             <div class="meta">
-                Submitted on: <b>{{ sub[3] }}</b> | 
-                Processing Time: <span class="time-badge">{{ sub[2] }} Seconds</span>
+                Latest Try: <b>{{ item.attempts[0][2] }}</b> | 
+                Total Attempts: <span class="time-badge">{{ item.attempts|length }}</span>
             </div>
 
             <div class="code-container">
                 <div>
-                    <span class="label">Student's Source Code:</span>
-                    <pre><code>{{ sub[1] }}</code></pre>
+                    <span class="label">Latest Source Code:</span>
+                    <pre><code>{{ item.attempts[0][0] }}</code></pre>
                 </div>
                 <div>
-                    <span class="label">System Verification:</span>
-                    <div class="output-box">
-                        <strong>Expected Output:</strong><br>
-                        <code style="word-break: break-all;">{{ sub[4] }}</code>
-                        <hr style="margin: 10px 0; border: 0; border-top: 1px solid #c8e6c9;">
-                        <p>Status: Output Matched Perfectly. Attendance has been logged for this date.</p>
+                    <span class="label">Latest Result:</span>
+                    <div class="output-box {{ 'output-success' if item.attempts[0][3] == 'Success' else 'output-error' }}">
+                        {% if item.attempts[0][3] == 'Success' %}
+                            <strong>✅ Verified: Output Matched.</strong>
+                            <p style="margin-top:5px;">Attendance logged for this task.</p>
+                        {% else %}
+                            <strong>❌ Error:</strong>
+                            <p class="error-detail">{{ item.attempts[0][4] }}</p>
+                        {% endif %}
                     </div>
                 </div>
+            </div>
+
+            <button class="btn-more" onclick="toggleAttempts('task-{{ loop.index0 }}')">View All Attempts History (More)</button>
+
+            <div id="task-{{ loop.index0 }}" class="attempts-container">
+                <h4 style="margin-bottom:10px; color:#555;">Submission Logs:</h4>
+                {% for attempt in item.attempts %}
+                <div class="attempt-box status-{{ attempt[3] }}-box">
+                    <div style="display:flex; justify-content: space-between; font-size: 13px; margin-bottom:8px;">
+                        <span>📅 {{ attempt[2] }}</span>
+                        <span>⏱ Time: {{ attempt[1] }}s</span>
+                        <span class="text-{{ attempt[3] }}">
+                            {{ attempt[3] }}
+                        </span>
+                    </div>
+                    <pre><code>{{ attempt[0] }}</code></pre>
+                    {% if attempt[4] and attempt[3] != 'Success' %}
+                        <div class="error-detail"><strong>System Log:</strong> {{ attempt[4] }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
             </div>
         </div>
         {% endfor %}
     {% else %}
         <div class="card" style="text-align: center; padding: 60px;">
-            <p style="font-size: 18px; color: #666;">No program submissions found for this student yet.</p>
+            <p style="font-size: 18px; color: #666;">No submissions found for this student.</p>
             <br>
-            <a href="/admin" style="color: #1e3c72;">Return to Dashboard</a>
+            <a href="/report" style="color: #1e3c72;">Return</a>
         </div>
     {% endif %}
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Since submissions table only stores successful runs (from your app.py logic),
-        // we visually enforce the green theme for all loaded cards.
-        const cards = document.querySelectorAll('.card');
-        cards.forEach(card => {
-            card.style.borderLeftColor = "#2e7d32";
-        });
-    });
+    function toggleAttempts(id) {
+        var x = document.getElementById(id);
+        x.style.display = x.style.display === "block" ? "none" : "block";
+    }
 </script>
 
 </body>
